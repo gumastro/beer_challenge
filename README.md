@@ -45,6 +45,7 @@ The contents of this [publication](https://www.researchgate.net/publication/5102
 
 Since cells are vibibly different from each other as well as the background, I should be able to use color thresholding. 
 >Converting the image to HSV format then use a lower/upper color threshold to create a binary mask. From here we perform morphological operations to smooth the image and remove small bits of noise.
+
 [Stackoverflow question](https://stackoverflow.com/questions/58751101/count-number-of-cells-in-the-image) about same/similar subject.
 
 ## Expected output
