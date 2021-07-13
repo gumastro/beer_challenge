@@ -8,31 +8,34 @@ import cv2
 from skimage import morphology, measure
 import matplotlib.pyplot as plt
 
+DEBUG_RECONSTRUCTION = False
+
 # Read original image(s)
 img = cv2.imread("./dataset/1Quad.jpg")
 
 # TODO: Grid reconstruction
 # Load image, grayscale, and adaptive threshold
-image = cv2.imread('./dataset/1Quad.jpg')
+image = img.copy()
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 57, 5)
 cv2.imwrite("thresh.jpg", thresh)
 
 # Mathematical morphology
-thresh=cv2.GaussianBlur(thresh,(7,7),0)
-ret, thresh = cv2.threshold(thresh,210, 255, 0)
+thresh = cv2.GaussianBlur(thresh, (7,7), 0)
+ret, thresh = cv2.threshold(thresh, 210, 255, 0)
 kernel = np.ones((3,3), np.uint8)
-test = cv2.erode(thresh, None, kernel, iterations=16)
-test = cv2.morphologyEx(test, cv2.MORPH_CLOSE, kernel, iterations=55)
-test = cv2.erode(test, None, kernel, iterations=10)
+morphed = cv2.erode(thresh, None, kernel, iterations=16)
+morphed = cv2.morphologyEx(morphed, cv2.MORPH_CLOSE, kernel, iterations=55)
+morphed = cv2.erode(morphed, None, kernel, iterations=10)
+cv2.imwrite("morphed.jpg", morphed)
 
-cv2.imwrite("filter.jpg", test)
+# Find all contours
+contours, hierarchy = cv2.findContours(morphed, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+if (DEBUG_RECONSTRUCTION): cv2.drawContours(image=img, contours=contours, contourIdx=-1, color=(0, 255, 0), thickness=5, lineType=cv2.LINE_AA)
 
-contours, hierarchy = cv2.findContours(image=test, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_NONE)
-cv2.drawContours(image=img, contours=contours, contourIdx=-1, color=(0, 255, 0), thickness=5, lineType=cv2.LINE_AA)
-
-# Get biggest contour
+# Get biggest contour (inner part of Neubauer chamber)
 c = max(contours, key = cv2.contourArea)
+if (DEBUG_RECONSTRUCTION): cv2.drawContours(image=img, contours=c, contourIdx=-1, color=(0, 0, 255), thickness=8, lineType=cv2.LINE_AA)
 
 def scale_contour(cnt, scale):
     M = cv2.moments(cnt)
@@ -46,22 +49,58 @@ def scale_contour(cnt, scale):
 
     return cnt_scaled
 
-c = scale_contour(c, 1.15)
+# Resize contour to match real image
+c = scale_contour(c, 1.16)
 
-x,y,w,h = cv2.boundingRect(c)
-cv2.circle(img,(x,y), 8, (0,255,0), -1)
-cv2.circle(img,(x+w,y), 8, (0,255,0), -1)
-cv2.circle(img,(x+w,y+h), 8, (0,255,0), -1)
-cv2.circle(img,(x,y+h), 8, (0,255,0), -1)
+# Get corners of contour
+rect = cv2.minAreaRect(c)
+box = cv2.boxPoints(rect)
+box = np.int0(box)
+if (DEBUG_RECONSTRUCTION): cv2.drawContours(img, [box], 0, (255, 0, 0), 6)
 
-# draw the biggest contour (c) in red
-cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),5)
+def crop_rect(img, rect):
+    # get the parameter of the small rectangle
+    center = rect[0]
+    size = rect[1]
+    angle = rect[2]
+    center, size = tuple(map(int, center)), tuple(map(int, size))
 
-plt.imshow(img)
-plt.title("Otsu") #(%d)" % (OL))
-plt.show(block=False)
-input('press any key')
-plt.clf()
+    # get row and col num in img
+    height, width = img.shape[0], img.shape[1]
+    print("width: {}, height: {}".format(width, height))
+
+    M = cv2.getRotationMatrix2D(center, angle, 1)
+    img_rot = cv2.warpAffine(img, M, (width, height))
+
+    img_crop = cv2.getRectSubPix(img_rot, size, center)
+
+    img_crop = cv2.rotate(img_crop, rotateCode=cv2.ROTATE_90_CLOCKWISE)
+    return img_crop, img_rot
+
+img_crop, img_rot = crop_rect(img, rect)
+
+# Concat images
+def vconcat_resize_min(im_list, interpolation=cv2.INTER_CUBIC):
+    w_min = min(im.shape[1] for im in im_list)
+    im_list_resize = [cv2.resize(im, (w_min, int(im.shape[0] * w_min / im.shape[1])), interpolation=interpolation)
+                      for im in im_list]
+    return cv2.vconcat(im_list_resize)
+
+def hconcat_resize_min(im_list, interpolation=cv2.INTER_CUBIC):
+    h_min = min(im.shape[0] for im in im_list)
+    im_list_resize = [cv2.resize(im, (int(im.shape[1] * h_min / im.shape[0]), h_min), interpolation=interpolation)
+                      for im in im_list]
+    return cv2.hconcat(im_list_resize)
+
+def concat_tile_resize(im_list_2d, interpolation=cv2.INTER_CUBIC):
+    im_list_v = [hconcat_resize_min(im_list_h, interpolation=cv2.INTER_CUBIC) for im_list_h in im_list_2d]
+    return vconcat_resize_min(im_list_v, interpolation=cv2.INTER_CUBIC)
+
+reconstructed = concat_tile_resize([[img_crop, img_crop, img_crop],
+                                     [img_crop, img_crop, img_crop],
+                                     [img_crop, img_crop, img_crop]])
+
+cv2.imwrite("reconstructed.jpg", reconstructed)
 
 # TODO: Cell identification
 # WIP: Contour cells
