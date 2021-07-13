@@ -28,7 +28,11 @@ All input images were gathered from the [Beer Challenge page](https://www.notion
 ### Grid reconstruction
 
 Each image may have small rotations or areas that overlap with other input images that need to be considered when reconstructing the grid.
-To reconstruct the grid, I try and get the biggest contour (grid pattern) on a processed image. Then I resize the contour and rotate (WIP) the grid to get the output image. Finally, I (WIP) put them together. Only the central part of the Neubauer chamber will be considered.
+To reconstruct the grid, I try and get the biggest contour (grid pattern) on a processed image. Then I resize the contour and rotate the grid to get the output image. Finally, I (WIP) put them together. Only the central part of the Neubauer chamber will be considered.
+
+Here is an example of a reconstructed grid (using only 1 dataset image - 1Quad.jpg)
+
+![Reconstructed grid image](./reconstructed.jpg)
 
 ### Cell identification
 
