@@ -18,6 +18,7 @@ gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 57, 5)
 cv2.imwrite("thresh.jpg", thresh)
 
+# Mathematical morphology
 thresh=cv2.GaussianBlur(thresh,(7,7),0)
 ret, thresh = cv2.threshold(thresh,210, 255, 0)
 kernel = np.ones((3,3), np.uint8)
@@ -30,6 +31,7 @@ cv2.imwrite("filter.jpg", test)
 contours, hierarchy = cv2.findContours(image=test, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_NONE)
 cv2.drawContours(image=img, contours=contours, contourIdx=-1, color=(0, 255, 0), thickness=5, lineType=cv2.LINE_AA)
 
+# Get biggest contour
 c = max(contours, key = cv2.contourArea)
 
 def scale_contour(cnt, scale):
@@ -46,16 +48,13 @@ def scale_contour(cnt, scale):
 
 c = scale_contour(c, 1.15)
 
-print(c)
 x,y,w,h = cv2.boundingRect(c)
-
 cv2.circle(img,(x,y), 8, (0,255,0), -1)
 cv2.circle(img,(x+w,y), 8, (0,255,0), -1)
 cv2.circle(img,(x+w,y+h), 8, (0,255,0), -1)
 cv2.circle(img,(x,y+h), 8, (0,255,0), -1)
-#cv2.imshow("Corners of grid", img)
 
-# draw the biggest contour (c) in green
+# draw the biggest contour (c) in red
 cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),5)
 
 plt.imshow(img)
@@ -63,18 +62,6 @@ plt.title("Otsu") #(%d)" % (OL))
 plt.show(block=False)
 input('press any key')
 plt.clf()
-
-
-
-
-test = cv2.erode(test, None, kernel, iterations=30)
-cv2.imwrite("test.jpg", test)
-
-vertical_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1,5))
-thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, vertical_kernel, iterations=9)
-horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5,1))
-thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, horizontal_kernel, iterations=4)
-cv2.imwrite("lines.jpg", thresh)
 
 # TODO: Cell identification
 # WIP: Contour cells
