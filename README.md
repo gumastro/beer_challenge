@@ -28,7 +28,7 @@ All input images were gathered from the [Beer Challenge page](https://www.notion
 ### Grid reconstruction
 
 Each image may have small rotations or areas that overlap with other input images that need to be considered when reconstructing the grid.
-In order to reconstruct the grid, I might need to rotate the input images (probably using `scipy.ndimage.rotate`). And then put them together, taking into account the overlaps (still not sure how to - some of my ideas include using fourier transforms and mathematical morphology).
+To reconstruct the grid, I try and get the biggest contour (grid pattern) on a processed image. Then I resize the contour and rotate (WIP) the grid to get the output image. Finally, I (WIP) put them together. Only the central part of the Neubauer chamber will be considered.
 
 ### Cell identification
 
