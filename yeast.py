@@ -12,6 +12,69 @@ import matplotlib.pyplot as plt
 img = cv2.imread("./dataset/1Quad.jpg")
 
 # TODO: Grid reconstruction
+# Load image, grayscale, and adaptive threshold
+image = cv2.imread('./dataset/1Quad.jpg')
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 57, 5)
+cv2.imwrite("thresh.jpg", thresh)
+
+thresh=cv2.GaussianBlur(thresh,(7,7),0)
+ret, thresh = cv2.threshold(thresh,210, 255, 0)
+kernel = np.ones((3,3), np.uint8)
+test = cv2.erode(thresh, None, kernel, iterations=16)
+test = cv2.morphologyEx(test, cv2.MORPH_CLOSE, kernel, iterations=55)
+test = cv2.erode(test, None, kernel, iterations=10)
+
+cv2.imwrite("filter.jpg", test)
+
+contours, hierarchy = cv2.findContours(image=test, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_NONE)
+cv2.drawContours(image=img, contours=contours, contourIdx=-1, color=(0, 255, 0), thickness=5, lineType=cv2.LINE_AA)
+
+c = max(contours, key = cv2.contourArea)
+
+def scale_contour(cnt, scale):
+    M = cv2.moments(cnt)
+    cx = int(M['m10']/M['m00'])
+    cy = int(M['m01']/M['m00'])
+
+    cnt_norm = cnt - [cx, cy]
+    cnt_scaled = cnt_norm * scale
+    cnt_scaled = cnt_scaled + [cx, cy]
+    cnt_scaled = cnt_scaled.astype(np.int32)
+
+    return cnt_scaled
+
+c = scale_contour(c, 1.15)
+
+print(c)
+x,y,w,h = cv2.boundingRect(c)
+
+cv2.circle(img,(x,y), 8, (0,255,0), -1)
+cv2.circle(img,(x+w,y), 8, (0,255,0), -1)
+cv2.circle(img,(x+w,y+h), 8, (0,255,0), -1)
+cv2.circle(img,(x,y+h), 8, (0,255,0), -1)
+#cv2.imshow("Corners of grid", img)
+
+# draw the biggest contour (c) in green
+cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),5)
+
+plt.imshow(img)
+plt.title("Otsu") #(%d)" % (OL))
+plt.show(block=False)
+input('press any key')
+plt.clf()
+
+
+
+
+test = cv2.erode(test, None, kernel, iterations=30)
+cv2.imwrite("test.jpg", test)
+
+vertical_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1,5))
+thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, vertical_kernel, iterations=9)
+horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5,1))
+thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, horizontal_kernel, iterations=4)
+cv2.imwrite("lines.jpg", thresh)
 
 # TODO: Cell identification
 # WIP: Contour cells
@@ -87,9 +150,7 @@ plt.figure(figsize=(15,10))
 #img_er4 = cv2.drawContours(img_er3, contours, -1, (0,255,0), 3)
 #cv2.imwrite("contours.png", img_er4)
 
-print(img_er3)
 labels = measure.label(img_er3)
-print(labels)
 
 # TODO: Cell count
 contours, hierarchy = cv2.findContours(img_er3, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
