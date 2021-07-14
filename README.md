@@ -15,10 +15,8 @@ The sequence of input images corresponds to the central region of the Neubauer c
 ### Example input images:
 All input images were gathered from the [Beer Challenge page](https://www.notion.so/Proposta-de-Projeto-336e8afb603447109116a61d147c0e09)
 
-<img src="./dataset/1Quad.jpg" width="96" height="69">
-<img src="./dataset/2Quad.jpg" width="96" height="69">
-<img src="./dataset/7Quad2.jpg" width="96" height="69">
-<img src="./dataset/8Quad2.jpg" width="96" height="69">
+<img src="./dataset/1Quad.jpg" style ="width: 50%"><img src="./dataset/2Quad.jpg" style ="width: 50%">
+<img src="./dataset/7Quad2.jpg" style ="width: 50%"><img src="./dataset/8Quad2.jpg" style ="width: 50%">
 
 ## Steps
 
