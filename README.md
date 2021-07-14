@@ -62,3 +62,7 @@ Here is a visualization of the obtained result (using only 1 dataset image - 1Qu
 
 ![Visualization of obtained result](./identification.jpg)
 
+### Credits
+
+Gustavo Tuani Mastrobuono
+
