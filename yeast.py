@@ -7,7 +7,7 @@ import numpy as np
 import cv2
 
 DEBUG_RECONSTRUCTION = False
-DEBUG_IDENTIFICATION = True
+DEBUG_IDENTIFICATION = False
 
 # Read original image(s)
 # TODO: Read whole dataset
