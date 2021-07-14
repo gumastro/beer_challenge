@@ -56,7 +56,7 @@ Output contains four measurements and has the following format:
 
 `TotalNumberOfCells NumberOfLivingCells NumberOfDeadCells %OfLivingCells`
 
-There is also a way to visualize and differentiate living from dead cells: living cells are circled green and dead ones are circled red. There is also a text near then indicating either "dead" or "living".
+There is also a way to visualize and differentiate living from dead cells: living cells are circled green and dead ones are circled red. There is also a text near then indicating either "dead" or "alive".
 
 Here is a visualization of the obtained result (using only 1 dataset image - 1Quad.jpg)
 
