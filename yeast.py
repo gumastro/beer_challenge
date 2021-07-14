@@ -96,9 +96,11 @@ def concat_tile_resize(im_list_2d, interpolation=cv2.INTER_CUBIC):
     im_list_v = [hconcat_resize_min(im_list_h, interpolation=cv2.INTER_CUBIC) for im_list_h in im_list_2d]
     return vconcat_resize_min(im_list_v, interpolation=cv2.INTER_CUBIC)
 
-reconstructed = concat_tile_resize([[img_crop, img_crop, img_crop],
-                                     [img_crop, img_crop, img_crop],
-                                     [img_crop, img_crop, img_crop]])
+reconstructed = concat_tile_resize([[img_crop, img_crop, img_crop, img_crop, img_crop],
+                                     [img_crop, img_crop, img_crop, img_crop, img_crop],
+                                     [img_crop, img_crop, img_crop, img_crop, img_crop],
+                                     [img_crop, img_crop, img_crop, img_crop, img_crop],
+                                     [img_crop, img_crop, img_crop, img_crop, img_crop]])
 
 cv2.imwrite("reconstructed.jpg", reconstructed)
 
